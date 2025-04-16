@@ -1,23 +1,18 @@
 using System.Net;
 using System.Net.Http.Json;
 using SampleWebApi.Domain;
+using Tests.Common;
 
 namespace IntegrationTests;
 
-public class SimpleApiIntegrationTests : IClassFixture<SampleWebApiContainer>
+public class SimpleApiIntegrationTests(SampleWebApiContainer sampleWebApiContainer)
+    : IClassFixture<SampleWebApiContainer>
 {
-    private readonly SampleWebApiContainer _sampleWebApiContainer;
-
-    public SimpleApiIntegrationTests(SampleWebApiContainer sampleWebApiContainer)
-    {
-        _sampleWebApiContainer = sampleWebApiContainer;
-    }
-
     [Fact]
     public async Task GetPeople()
     {
         // Arrange
-        var client = _sampleWebApiContainer;
+        var client = sampleWebApiContainer;
 
         // Act
         var response = await client.GetFromJsonAsync<IEnumerable<Person>>("/people");
@@ -30,7 +25,7 @@ public class SimpleApiIntegrationTests : IClassFixture<SampleWebApiContainer>
     public async Task PostPerson()
     {
         // Arrange
-        var client = _sampleWebApiContainer;
+        var client = sampleWebApiContainer;
         var person = new Person("John", "Doe");
         var request = new HttpRequestMessage(HttpMethod.Post, "/people")
         {
@@ -48,7 +43,7 @@ public class SimpleApiIntegrationTests : IClassFixture<SampleWebApiContainer>
     public async Task PutPerson_WhenPersonDoesNotExist_ReturnNotFound()
     {
         // Arrange
-        var client = _sampleWebApiContainer;
+        var client = sampleWebApiContainer;
         var person = new Person("Jane", "Doe");
         var request = new HttpRequestMessage(HttpMethod.Put, $"/people/{Guid.NewGuid()}")
         {
@@ -66,7 +61,7 @@ public class SimpleApiIntegrationTests : IClassFixture<SampleWebApiContainer>
     public async Task PutPerson_WhenPersonExists_ReturnNoContent()
     {
         // Arrange
-        var client = _sampleWebApiContainer;
+        var client = sampleWebApiContainer;
         var person = new Person("Jane", "Doe");
         var postResponse = await client.PostAsJsonAsync("/people", person);
         var createdPerson = await postResponse.Content.ReadFromJsonAsync<Person>();

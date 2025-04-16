@@ -1,8 +1,9 @@
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
+using Xunit;
 
-namespace IntegrationTests;
+namespace Tests.Common;
 
 public class SampleWebApiImage : IImage, IAsyncLifetime
 {

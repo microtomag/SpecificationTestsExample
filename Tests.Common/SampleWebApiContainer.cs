@@ -1,10 +1,10 @@
-using Docker.DotNet.Models;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
 using Testcontainers.MsSql;
+using Xunit;
 
-namespace IntegrationTests;
+namespace Tests.Common;
 
 public class SampleWebApiContainer : HttpClient, IAsyncLifetime
 {

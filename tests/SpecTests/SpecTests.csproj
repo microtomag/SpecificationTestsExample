@@ -12,4 +12,8 @@
         <PackageReference Include="FluentAssertions" Version="6.12.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\Tests.Common\Tests.Common.csproj" />
+    </ItemGroup>
+
 </Project>
