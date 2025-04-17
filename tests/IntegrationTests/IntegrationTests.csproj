@@ -22,7 +22,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\SampleWebApi\SampleWebApi.csproj" />
-      <ProjectReference Include="..\..\Tests.Common\Tests.Common.csproj" />
       <ProjectReference Include="..\Tests.Common\Tests.Common.csproj" />
     </ItemGroup>
 

@@ -9,8 +9,10 @@ namespace Tests.Common;
 public class SampleWebApiContainer : HttpClient, IAsyncLifetime
 {
     private static readonly SampleWebApiImage SampleWebApiImage = new();
+    private static readonly FunctionsAppImage FunctionsAppImage = new();
     
     private IContainer _sampleWebApiContainer;
+    private IContainer _functionsAppContainer;
     private MsSqlContainer _msSqlContainer;
     private INetwork _network;
 
@@ -27,21 +29,28 @@ public class SampleWebApiContainer : HttpClient, IAsyncLifetime
             .WithEnvironment("ACCEPT_EULA", "Y")
             .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(1433))
             .Build();
+        _functionsAppContainer = new ContainerBuilder()
+            .WithImage(FunctionsAppImage)
+            .WithNetwork(_network)
+            .WithNetworkAliases("functions-app")
+            .Build();
         _sampleWebApiContainer = new ContainerBuilder()
             .WithImage(SampleWebApiImage)
             .WithNetwork(_network)
-            .WithPortBinding(SampleWebApiImage.HttpPort, true)
+            .WithPortBinding(GenericImage.HttpPort, true)
             .WithEnvironment("ASPNETCORE_URLS", "http://+")
             .WithEnvironment("ConnectionStrings__DefaultConnection", $"Server={mssql},1433;Database=SampleApiDb;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;")
-            .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(SampleWebApiImage.HttpPort))
+            .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(GenericImage.HttpPort))
             .Build();
     }
     
     public async Task InitializeAsync()
     {
         await SampleWebApiImage.InitializeAsync();
+        await FunctionsAppImage.InitializeAsync();
         await _network.CreateAsync();
         await _msSqlContainer.StartAsync();
+        await _functionsAppContainer.StartAsync();
         await _sampleWebApiContainer.StartAsync();
         
         var uriBuilder = new UriBuilder("http", _sampleWebApiContainer.Hostname, _sampleWebApiContainer.GetMappedPublicPort(SampleWebApiImage.HttpPort));
@@ -51,7 +60,9 @@ public class SampleWebApiContainer : HttpClient, IAsyncLifetime
     public async Task DisposeAsync()
     {
         await SampleWebApiImage.DisposeAsync();
+        await FunctionsAppImage.DisposeAsync();
         await _sampleWebApiContainer.DisposeAsync();
+        await _functionsAppContainer.DisposeAsync();
         await _msSqlContainer.DisposeAsync();
         await _network.DisposeAsync();
     }
