@@ -1,8 +1,11 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using SampleWebApi.Domain;
 using SampleWebApi.Persistence;
+using SampleWebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHttpClient<PersonValidator>(c => c.BaseAddress = new Uri(builder.Configuration["Api"]));
 builder.Services.AddDbContext<DatabaseContext>(context => context.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 var app = builder.Build();
 
@@ -11,8 +14,9 @@ app.MapGet("/people", async (DatabaseContext context) =>
     var people = await context.People.AsNoTracking().ToArrayAsync();
     return Results.Ok(people);
 });
-app.MapPost("/people", async (DatabaseContext context, Person person) =>
+app.MapPost("/people", async (DatabaseContext context, PersonValidator validator, Person person) =>
 {
+    var isValid = await validator.IsValidAsync(person);
     await context.People.AddAsync(person);
     await context.SaveChangesAsync();
     return Results.Created($"/people/{person.Id}", person);

@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using DotNet.Testcontainers;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
@@ -25,7 +26,7 @@ public class SampleWebApiContainer : HttpClient, IAsyncLifetime
         _msSqlContainer = new MsSqlBuilder()
             //.WithImage("mcr.microsoft.com/mssql/server:2022-latest")
             .WithPassword("yourStrong(!)Password")
-            .WithPortBinding(1433)
+            .WithPortBinding(1433, true)
             .WithNetwork(_network)
             .WithNetworkAliases(mssql)
             .WithEnvironment("ACCEPT_EULA", "Y")
@@ -36,6 +37,7 @@ public class SampleWebApiContainer : HttpClient, IAsyncLifetime
             .WithImage(FunctionsAppImage)
             .WithNetwork(_network)
             .WithNetworkAliases("functions-app")
+            .WithExposedPort(80)
             .WithLogger(ConsoleLogger.Instance)
             .Build();
         _sampleWebApiContainer = new ContainerBuilder()
@@ -44,6 +46,7 @@ public class SampleWebApiContainer : HttpClient, IAsyncLifetime
             .WithPortBinding(GenericImage.HttpPort, true)
             .WithEnvironment("ASPNETCORE_URLS", "http://+")
             .WithEnvironment("ConnectionStrings__DefaultConnection", $"Server={mssql},1433;Database=SampleApiDb;User Id=sa;Password=yourStrong(!)Password;TrustServerCertificate=True;")
+            .WithEnvironment("Api", "http://functions-app")
             .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(GenericImage.HttpPort))
             .WithLogger(ConsoleLogger.Instance)
             .Build();
@@ -51,11 +54,11 @@ public class SampleWebApiContainer : HttpClient, IAsyncLifetime
     
     public async Task InitializeAsync()
     {
-        await SampleWebApiImage.InitializeAsync().ConfigureAwait(false);
-        await FunctionsAppImage.InitializeAsync().ConfigureAwait(false);
         await _network.CreateAsync().ConfigureAwait(false);
         await _msSqlContainer.StartAsync().ConfigureAwait(false);
+        await FunctionsAppImage.InitializeAsync().ConfigureAwait(false);
         await _functionsAppContainer.StartAsync().ConfigureAwait(false);
+        await SampleWebApiImage.InitializeAsync().ConfigureAwait(false);
         await _sampleWebApiContainer.StartAsync().ConfigureAwait(false);
         
         var uriBuilder = new UriBuilder("http", _sampleWebApiContainer.Hostname, _sampleWebApiContainer.GetMappedPublicPort(SampleWebApiImage.HttpPort));
