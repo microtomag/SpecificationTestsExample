@@ -1,9 +1,15 @@
+using DotNet.Testcontainers;
 using Tests.Common;
 
 namespace IntegrationTests;
 
 public class ImageBuilderTests
 {
+    static ImageBuilderTests()
+    {
+        ConsoleLogger.Instance.DebugLogLevelEnabled = true;
+    }
+    
     [Fact]
     public async Task BuildFunctionsAppImage()
     {
