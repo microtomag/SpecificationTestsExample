@@ -27,8 +27,8 @@ public abstract class GenericImage(string imageName) : IImage, IAsyncLifetime
     {
         try
         {
-            await _semaphoreSlim.WaitAsync();
-            await BuildImageAsync();
+            await _semaphoreSlim.WaitAsync().ConfigureAwait(false);
+            await BuildImageAsync().ConfigureAwait(false);
         }
         finally
         {

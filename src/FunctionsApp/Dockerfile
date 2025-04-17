@@ -1,4 +1,4 @@
-ARG PLATFORM="linux/arm64"
+ARG PLATFORM="linux/amd64"
 
 FROM --platform=$PLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS installer-env
 ARG RESOURCE_REAPER_SESSION_ID="00000000-0000-0000-0000-000000000000"

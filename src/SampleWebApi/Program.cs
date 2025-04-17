@@ -32,8 +32,8 @@ app.MapPut("/people/{id:guid}", async (DatabaseContext context, Guid id, Person 
     return Results.NoContent();
 });
 
-/*using var scope = app.Services.CreateScope();
+using var scope = app.Services.CreateScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-await dbContext.Database.EnsureCreatedAsync();*/
+await dbContext.Database.EnsureCreatedAsync();
 
 app.Run();

@@ -12,12 +12,10 @@ public class FunctionsAppImage() : GenericImage("localhost/microtomag/functions-
             .WithName(this)
             .WithDockerfileDirectory(CommonDirectoryPath.GetSolutionDirectory(), "src/FunctionsApp")
             .WithDockerfile("Dockerfile")
-            .WithBuildArgument("PLATFORM", "linux")
             .WithBuildArgument("RESOURCE_REAPER_SESSION_ID",
                 ResourceReaper.DefaultSessionId
                     .ToString("D")) // https://github.com/testcontainers/testcontainers-dotnet/issues/602.
-            .WithLogger(ConsoleLogger.Instance)
-            .WithDeleteIfExists(true)
+            .WithDeleteIfExists(false)
             .Build()
             .CreateAsync();
 }

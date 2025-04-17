@@ -4,7 +4,7 @@ using DotNet.Testcontainers.Containers;
 
 ConsoleLogger.Instance.DebugLogLevelEnabled = true;
 
-await new ImageFromDockerfileBuilder()
+/*await new ImageFromDockerfileBuilder()
     .WithName("localhost/functions-app")
     .WithDockerfileDirectory(CommonDirectoryPath.GetSolutionDirectory(), "src/FunctionsApp")
     //.WithDockerfile("Dockerfile")
@@ -14,5 +14,17 @@ await new ImageFromDockerfileBuilder()
             .ToString("D")) // https://github.com/testcontainers/testcontainers-dotnet/issues/602.
     .WithLogger(ConsoleLogger.Instance)
     .WithDeleteIfExists(true)
+    .Build()
+    .CreateAsync();*/
+    
+await new ImageFromDockerfileBuilder()
+    .WithName("localhost/microtomag/sample-webapi")
+    .WithDockerfileDirectory(CommonDirectoryPath.GetSolutionDirectory(), "src/SampleWebApi")
+    .WithDockerfile("Dockerfile")
+    .WithBuildArgument("RESOURCE_REAPER_SESSION_ID",
+        ResourceReaper.DefaultSessionId
+            .ToString("D")) // https://github.com/testcontainers/testcontainers-dotnet/issues/602.
+    .WithDeleteIfExists(true)
+    .WithLogger(ConsoleLogger.Instance)
     .Build()
     .CreateAsync();
